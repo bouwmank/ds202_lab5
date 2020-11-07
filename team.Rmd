@@ -30,6 +30,10 @@ person <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/mas
 
 ```{r}
 
+
+accDays <- ggplot(acc, aes(DAY_WEEK)) + geom_bar(width=0.7) + theme_minimal()
+
+print(accDays + labs(y="Count", x="Days of The Week", title = "Total Number of Accidents on each day of the Week"))
 ```
 
 2. Create a data frame containing the persons who are fatally hurt in the accidents (look up variable INJ_SEV)
