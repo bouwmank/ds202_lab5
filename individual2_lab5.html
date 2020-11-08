@@ -369,7 +369,100 @@ summary {
 </div>
 
 
-
+<div id="lab-5" class="section level2">
+<h2>Lab 5</h2>
+</div>
+<div id="drunk-driving-and-fatal-accidents" class="section level1">
+<h1>Drunk Driving and Fatal Accidents</h1>
+<p><em>Loading Files</em></p>
+<pre class="r"><code>library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>library(ggplot2)
+library(tidyr)
+library(readr)
+#library(classdata)
+library(lubridate)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;lubridate&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     date, intersect, setdiff, union</code></pre>
+<pre class="r"><code>acc &lt;- read.csv(&quot;https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/accident.csv&quot;, stringsAsFactors = FALSE)
+person &lt;- read.csv(&quot;https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/person.csv&quot;, stringsAsFactors = FALSE)</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>Create a data frame containing the persons who are fatally hurt in the accidents (look up variable INJ_SEV)</li>
+</ol>
+<pre class="r"><code>per2 &lt;- person %&gt;% filter(INJ_SEV == &#39;4&#39;)
+head(per2)</code></pre>
+<pre><code>##   STATE ST_CASE VE_FORMS VEH_NO PER_NO STR_VEH COUNTY DAY MONTH HOUR MINUTE
+## 1     1   10001        1      1      1       0     73  19     2   23     35
+## 2     1   10002        1      1      1       0     89  14     2   14     59
+## 3     1   10003        3      2      1       0    101  31     1   20     31
+## 4     1   10004        1      1      1       0     73   1     1   16     55
+## 5     1   10005        1      1      1       0     13   1     1   20      0
+## 6     1   10006        2      1      1       0     49   6     1   18     40
+##   RUR_URB FUNC_SYS HARM_EV MAN_COLL SCH_BUS MAKE MAK_MOD BODY_TYP MOD_YEAR
+## 1       2        1      38        0       0   20   20421       15     2004
+## 2       2        1       1        0       0   37   37402       14     2005
+## 3       2        1      12        1       0    2    2404       14     2003
+## 4       2        4      30        0       0   30   30046        4     2014
+## 5       1        1      35        0       0   12   12471       34     2010
+## 6       1        1      34        0       0   49   49032        4     1997
+##   TOW_VEH SPEC_USE EMER_USE ROLLOVER IMPACT1 FIRE_EXP AGE SEX PER_TYP INJ_SEV
+## 1       1        0        0        0      12        0  42   1       1       4
+## 2       0        0        0        9       0        0  43   1       1       4
+## 3       0        0        0        0       6        0  47   1       1       4
+## 4       0        0        0        1      11        0  18   1       1       4
+## 5       0        0        0        1      12        0  67   2       1       4
+## 6       0        0        0        1      11        0  18   2       1       4
+##   SEAT_POS REST_USE REST_MIS AIR_BAG EJECTION EJ_PATH EXTRICAT DRINKING ALC_DET
+## 1       11       20        0       1        1       9        0        0       9
+## 2       11        3        0       8        0       0        0        9       9
+## 3       11        3        0      99        0       0        0        0       9
+## 4       11        3        0       8        0       0        0        9       9
+## 5       11        3        0       1        0       0        0        0       9
+## 6       11       20        0      20        1       9        0        0       9
+##   ALC_STATUS ATST_TYP ALC_RES DRUGS DRUG_DET DSTATUS DRUGTST1 DRUGTST2 DRUGTST3
+## 1          0        0     996     0        8       0        0        0        0
+## 2          2        1       0     9        8       2        1        1        1
+## 3          2        1       0     0        8       2        1        0        0
+## 4          0        0     996     9        8       0        0        0        0
+## 5          0        0     996     0        8       0        0        0        0
+## 6          0        0     996     0        8       0        0        0        0
+##   DRUGRES1 DRUGRES2 DRUGRES3 HOSPITAL DOA DEATH_DA DEATH_MO DEATH_YR DEATH_HR
+## 1        0        0        0        0   7       19        2     2017       23
+## 2      605      600      996        0   7       14        2     2017       14
+## 3        1        0        0        0   7       31        1     2017       20
+## 4        0        0        0        0   7        1        1     2017       16
+## 5        0        0        0        0   7        1        1     2017       20
+## 6        0        0        0        0   7        6        1     2017       18
+##   DEATH_MN DEATH_TM LAG_HRS LAG_MINS P_SF1 P_SF2 P_SF3 WORK_INJ HISPANIC RACE
+## 1       35     2335       0        0     0     0     0        0        7    1
+## 2       59     1459       0        0     0     0     0        0        7    1
+## 3       31     2031       0        0     0     0     0        0        7    2
+## 4       55     1655       0        0     0     0     0        0        7    2
+## 5        0     2000       0        0     0     0     0        0        7    1
+## 6       40     1840       0        0     0     0     0        0        7    1
+##   LOCATION
+## 1        0
+## 2        0
+## 3        0
+## 4        0
+## 5        0
+## 6        0</code></pre>
+<ol start="4" style="list-style-type: decimal">
+<li><p>Create a map, and label each state with the most dangerous vehicle. Discuss the definition of the most dangerous vehicle, and what you find from the map. (Hint: Read the description for the STATE and COUNTY columns in the FARS manual. The state &amp; county codes are Geographic Locator Codes (GLCs) from the General Services Administration’s (GSA) publication. Use readxl::read_xlsx to read in the GLCs.)</p></li>
+<li><p>Tally the number of accidents by day of the week (DAY_WEEK), hour of the day (HOUR) and gender (SEX). Visualize the results.</p></li>
+<li><p>Is summer or winter more dangerous? Does this depend on states? Explore and explain.</p></li>
+</ol>
+</div>
 
 
 
