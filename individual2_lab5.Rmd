@@ -25,30 +25,46 @@ library(lubridate)
 fatal <- per %>%
       filter(INJ_SEV == 4)
 ```
+```{r}
+mostDangerousMakes <- fatal %>%
+      filter(!is.na(MAKE)) %>%
+      group_by(STATE, MAKE) %>%
+      summarize(n = n()) %>%
+      group_by(STATE) %>%
+      filter(n == max(n))
 
+```
 4. Create a map, and label each state with the most dangerous vehicle. Discuss the definition of the most dangerous vehicle, and what you find from the map. (Hint: Read the description for the STATE and COUNTY columns in the FARS manual. The state & county codes are Geographic Locator Codes (GLCs) from the General Services Administration’s (GSA) publication. Use readxl::read_xlsx to read in the GLCs.)
 
 ```{r, dependson=c("load","severe","danger")}
-states <- map_data('state')
-    glcs <- readxl::read_xlsx('FRPP_GLC_-_United_StatesSep292020.xlsx') %>%
-      mutate(`State Code`=as.integer(`State Code`)) %>%
-      mutate(`County Code`=as.integer(`County Code`))
-    make_labels <- glcs %>%
-      distinct(`State Name`, `State Code`) %>%
-      inner_join(mostDangerousMakes, by=c('State Code'='STATE')) %>%
-      mutate(`State Name`=tolower(`State Name`)) %>%
-      inner_join(states %>% group_by(region) %>% summarize(lat=(min(lat)+max(lat))/2,long=(min(long)+max(long))/2), by=c('State Name'='region')) %>%
-      inner_join(read.csv('makes.csv'))
-    ggplot(states, aes(x=long,y=lat,group=group)) + geom_path() + geom_text(data=make_labels, aes(x=long,y=lat,label=Model,group=NULL,label.size=0.2)) + coord_map() + ggtitle('Most Dangerous Make by State') + theme_void()
+#states <- map_data('state')
+   # glcs <- readxl::read_xlsx('FRPP_GLC_-_United_StatesSep292020.xlsx') %>%
+ #     mutate(`State Code`=as.integer(`State Code`)) %>%
+ #     mutate(`County Code`=as.integer(`County Code`))
+  #  make_labels <- glcs %>%
+  #    distinct(`State Name`, `State Code`) %>%
+   #   inner_join(mostDangerousMakes, by=c('State Code'='STATE')) %>%
+   #   mutate(`State Name`=tolower(`State Name`)) %>%
+   #   inner_join(states %>% group_by(region) %>% summarize(lat=(min(lat)+max(lat))/2,long=(min(long)+max(long))/2), by=c('State Name'='region')) %>%
+    #  inner_join(read.csv('makeCodes.csv'))
+   # ggplot(states, aes(x=long,y=lat,group=group)) + geom_path() + geom_text(data=make_labels, aes(x=long,y=lat,label=Model,group=NULL,label.size=0.2)) + coord_map() + ggtitle('Most Dangerous Make by State') + theme_void()
     
 ```
 
-```
 
 
 6. Tally the number of accidents by day of the week (DAY_WEEK), hour of the day (HOUR) and gender (SEX). Visualize the results.
 
 ```{r}
+data %>%
+      mutate(SEX=ifelse(SEX==1,'Male',ifelse(SEX==2,'Female','Unknown'))) %>%
+      mutate(DAY_WEEK=wday(DAY_WEEK, label=TRUE)) %>%
+      filter(HOUR <= 24) %>%
+      group_by(DAY_WEEK, HOUR, SEX) %>%
+      summarize(n=n()) %>%
+      distinct(DAY_WEEK, HOUR, SEX, n) %>%
+      ggplot(aes(x=HOUR,weight=n,fill=SEX)) + geom_bar(position='dodge') + facet_wrap(~DAY_WEEK) + ggtitle('Accidents by Day of Week, Hour, and Sex') + xlab('Hour of Day') + ylab('Number of Accidents')
+   
 ```
 
 
