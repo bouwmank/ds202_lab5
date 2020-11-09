@@ -138,6 +138,16 @@ ggplot(fatal, aes(x = LONGITUD, y = LATITUDE, fill = n)) +
 8. Is summer or winter more dangerous? Does this depend on states? Explore and explain.
 
 ```{r}
+summer <- joinedTables %>%
+  filter((DAY >= 20 & MONTH >= 6) & (DAY <= 22 & MONTH <= 9)) %>%
+  filter(INJ_SEV == 4 | 3) %>%
+  group_by(STATE, State) %>%
+  summarize(n = n()) %>%
+  group_by(STATE) %>%
 
+winter <- joinedTables %>%
+  filter((DAY >= 21 & MONTH == 12) | (DAY >= 1 & MONTH >= 1) & (DAY <= 1 & MONTH <= 3)) %>%
+  filter(INJ_SEV == 4 | 3) %>%
+  group_by(STATE, State)
 ```
 
