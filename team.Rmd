@@ -31,6 +31,9 @@ stateCode <- read.csv("stateCodes.csv")
 1. Are there some days of the week where more accidents happen than the others (see FARS manual, use variable DAY_WEEK)?
 
 ```{r}
+acc %>%
+  mutate(recode(DAY_WEEK, "1" = "Sunday", "2" = "Monday", "3" = "Tuesday", "4" = "Wednesday", "5" = "Thursday", "6" = "Friday", "7"  = "Saturday")) -> mutAcc
+print(mutAcc$DAY_WEEK)
 
 
 accDays <- ggplot(acc, aes(DAY_WEEK)) + geom_bar(width=0.7) + theme_minimal()
@@ -94,7 +97,14 @@ head(acc_per)
 7. Now plot a choropleth map of the number of deaths on a county level.
 
 ```{r}
+states <- full_join(acc_per, stateCode)
+states %>%
+  select(STATE, LONGITUD, LATITUDE) -> states
 
+
+ggplot(fatal, aes(x = LONGITUD, y = LATITUDE, fill = n)) + 
+  geom_polygon(aes(group = group)) + 
+  geom_path(data = states, aes(x = LONGITUD, y = LATITUDE, group = group), inherit.aes=FALSE, size=2, color='white')
 ```
 
 8. Is summer or winter more dangerous? Does this depend on states? Explore and explain.
