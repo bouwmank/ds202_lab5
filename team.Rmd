@@ -22,8 +22,10 @@ library(classdata)
 library(lubridate)
 
 acc <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/accident.csv", stringsAsFactors = FALSE)
-person <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/person.csv", stringsAsFactors = FALSE)
+per <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/person.csv", stringsAsFactors = FALSE)
 
+makeCode <- read.csv("makeCodes.csv")
+stateCode <- read.csv("stateCodes.csv")
 ```
 
 1. Are there some days of the week where more accidents happen than the others (see FARS manual, use variable DAY_WEEK)?
@@ -45,7 +47,27 @@ print(accDays + labs(y="Count", x="Days of The Week", title = "Total Number of A
 3. Create a data frame containing the most dangerous vehicle make in each state. The number of persons fatally hit in the vehicle make is used to assess the (non-)safety of a make. Make sure to handle the missing values appropriately. (look up variable MAKE)
 
 ```{r}
+makeCode %>%
+  mutate(MAKE = Codes) -> makeCode
 
+stateCode %>%
+  mutate(STATE = Code) -> stateCode
+
+per %>%
+  full_join(makeCode) -> per
+per %>%
+  full_join(stateCode) -> per
+
+fatal<- per %>%
+  filter(INJ_SEV == 2)
+
+danger<- fatal %>%
+  group_by(State, Make) %>%
+  summarize(n = n()) %>%
+  group_by(State) %>%
+  filter(n == max(n))
+
+print(danger)
 ```
 
 4. Create a map, and label each state with the most dangerous vehicle. Discuss the definition of the most dangerous vehicle, and what you find from the map. (Hint: Read the description for the STATE and COUNTY columns in the FARS manual. The state & county codes are Geographic Locator Codes (GLCs) from the General Services Administration’s (GSA) publication. Use readxl::read_xlsx to read in the GLCs.)
@@ -56,8 +78,11 @@ print(accDays + labs(y="Count", x="Days of The Week", title = "Total Number of A
 
 5. Join the accident and person table (work out which variable(s) to use)
 
-```{r}
+   Joined by STATE, ST_CASE, VE_FORMS, COUNTY, DAY, MONTH, HOUR, MINUTE, RUR_URB, FUNC_SYS, HARM_E",MAN_COLL, SCH_BUS
 
+```{r}
+acc_per <- full_join(acc, per)
+head(acc_per)
 ```
 
 6. Tally the number of accidents by day of the week (DAY_WEEK), hour of the day (HOUR) and gender (SEX). Visualize the results.
