@@ -12,28 +12,37 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Lab 5
 # Drunk Driving and Fatal Accidents
 
-*Loading Files*
 ```{r}
-library(dplyr)
-library(ggplot2)
-library(tidyr)
-library(readr)
-#library(classdata)
+acc <- read.csv('https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/accident.csv', stringsAsFactors=FALSE)
+per <- read.csv('https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/person.csv')
+library(tidyverse)
 library(lubridate)
-acc <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/accident.csv", stringsAsFactors = FALSE)
-person <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/person.csv", stringsAsFactors = FALSE)
 ```
 
 2. Create a data frame containing the persons who are fatally hurt in the accidents (look up variable INJ_SEV)
 
 ```{r}
-per2 <- person %>% filter(INJ_SEV == '4')
-head(per2)
+fatal <- per %>%
+      filter(INJ_SEV == 4)
 ```
 
 4. Create a map, and label each state with the most dangerous vehicle. Discuss the definition of the most dangerous vehicle, and what you find from the map. (Hint: Read the description for the STATE and COUNTY columns in the FARS manual. The state & county codes are Geographic Locator Codes (GLCs) from the General Services Administration’s (GSA) publication. Use readxl::read_xlsx to read in the GLCs.)
 
-```{r}
+```{r, dependson=c("load","severe","danger")}
+states <- map_data('state')
+    glcs <- readxl::read_xlsx('FRPP_GLC_-_United_StatesSep292020.xlsx') %>%
+      mutate(`State Code`=as.integer(`State Code`)) %>%
+      mutate(`County Code`=as.integer(`County Code`))
+    make_labels <- glcs %>%
+      distinct(`State Name`, `State Code`) %>%
+      inner_join(mostDangerousMakes, by=c('State Code'='STATE')) %>%
+      mutate(`State Name`=tolower(`State Name`)) %>%
+      inner_join(states %>% group_by(region) %>% summarize(lat=(min(lat)+max(lat))/2,long=(min(long)+max(long))/2), by=c('State Name'='region')) %>%
+      inner_join(read.csv('makes.csv'))
+    ggplot(states, aes(x=long,y=lat,group=group)) + geom_path() + geom_text(data=make_labels, aes(x=long,y=lat,label=Model,group=NULL,label.size=0.2)) + coord_map() + ggtitle('Most Dangerous Make by State') + theme_void()
+    
+```
+
 ```
 
 
@@ -46,4 +55,19 @@ head(per2)
 8. Is summer or winter more dangerous? Does this depend on states? Explore and explain.
 
 ```{r}
+
+```
+
+  This shows that in the dataset there are more accidents in the Summer overall.
+  
+```{r}
+accident <- countyStateCodes %>%
+  select(StateCode, StateName) %>%
+  right_join(accident, by = c("StateCode" = "STATE"))
+byState <- accident %>% 
+  filter(sumWint == 'Summer' | sumWint == 'Winter') %>%
+  group_by(sumWint, StateName) %>%
+  summarise(numAcc = n()) %>%
+  arrange(desc(numAcc))
+head(byState, 10)
 ```
